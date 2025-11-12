@@ -11,9 +11,9 @@ class TEv2_0125():
     Filelist = list()
 
     #Adapt to your execution environment.
-    jarLocation = r"C:\\path\\to\\JIDT\\infodynamics.jar"
-    jvmpath = r"C:\\Program Files\\Java\\jdk-xx\\bin\\server\\jvm.dll"
-    InfodynamicsPath = r"C:\\path\\to\\JIDT"
+    jarLocation = r"C:\\Users\\sato\\Documents\\JIDT\\infodynamics.jar"
+    jvmpath = "C:\\Program Files\\Java\\jdk-25\\bin\\server\\jvm.dll"
+    InfodynamicsPath = "C:\\Users\\sato\\Documents\\JIDT"
     
     def __init__(self,datapath,k,l,t,culclist,delaylist)-> None:
         self.datapath = datapath
@@ -42,7 +42,6 @@ class TEv2_0125():
             resultlist[file[:-4]] = result
         return resultlist
 
-    #データはsourceとdistinationを入れる
     def TEculc(self,culclist,k,l,t,delay,data):
         sys.path.append(self.InfodynamicsPath+"\\demos\\python") 
         
@@ -54,11 +53,10 @@ class TEv2_0125():
                 classpath=[self.jarLocation],
                 convertStrings=True
             )
-        # 1. Construct the calculator:
+
         calcClass = JPackage("infodynamics.measures.continuous.kraskov").TransferEntropyCalculatorKraskov
         calc = calcClass()
-        # 2. Set any properties to non-default values:
-        
+
         calc.setProperty("k_TAU", str(t))
         calc.setProperty("l_TAU", str(t))
         calc.setProperty("DELAY", str(delay))
@@ -77,7 +75,6 @@ class TEv2_0125():
 
             data = pd.DataFrame(np.array(data))
 
-            # missing_values = pd.DataFrame(np.array(data)).isna().any()
             data = np.array(data)
             s
             data[:, s] = pd.to_numeric(data[:, s], errors='coerce')
@@ -98,10 +95,6 @@ culclistRtoH= [[3,0],[2,1]]
 culclistHtoR= [[0,3],[1,2]]
 
 data_path = "Storage"
-result_path_RtoH = "Result\\resultRtoH_0312\\"
-result_path_HtoR = "Result\\resultHtoR_0312\\"
-
-
 
 if __name__ == "__main__":
 
@@ -126,10 +119,8 @@ if __name__ == "__main__":
     TE_HtoR_Instance = TEv2_0125(data_path,k,l,t,culclistHtoR,delaylist)
     HtoR_Result = TE_HtoR_Instance.getTE()
 
-    #CSVファイルへの格納
     df_Question = pd.read_csv("Questioneer.csv")
 
-    # --- 各辞書をDataFrameに変換 ---
     df_Question["ID"] = df_Question["ID"].astype(str)
 
     df_RtoH = pd.DataFrame.from_dict(RtoH_Result, orient='index', columns=RtoH_cols)
@@ -142,11 +133,9 @@ if __name__ == "__main__":
     df_HtoR.reset_index(inplace=True)
     df_HtoR.rename(columns={'index': 'ID'}, inplace=True)
 
-    # --- それぞれを順にマージ（IDで結合）---
     df = pd.merge(df_Question, df_RtoH, on='ID', how='left')
     df = pd.merge(df, df_HtoR, on='ID', how='left')
 
-    # --- 結果を保存 ---
     df.to_csv(f"Result\\datak={k},l={l},t={t},maxdelay={delaylist[-1]}.csv", index=False)
 
 
